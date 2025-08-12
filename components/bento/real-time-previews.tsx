@@ -148,7 +148,9 @@ const RealtimeCodingPreviews: React.FC = () => {
           }}
         >
           {/* Download Button - Exact positioning from Figma */}
+    {/* Download Button - Exact positioning from Figma */}
           <div
+            className="bg-primary-gradient"
             style={{
               position: "absolute",
               top: "calc(50% + 0.001px)",
@@ -158,7 +160,6 @@ const RealtimeCodingPreviews: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: "7.907px",
-              background: "var(--realtime-primary-color)",
               color: "var(--realtime-text-preview)",
               border: "none",
               cursor: "pointer",

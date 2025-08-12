@@ -172,7 +172,7 @@ const AiCodeReviews: React.FC = () => {
             <p style={{ margin: 0, whiteSpace: "pre-wrap", fontWeight: 400 }}>
               {'                d="M3.85156 7.875L6.47656 10.5L10.8516 3.5"'}
             </p>
-            <p style={{ margin: 0, whiteSpace: "pre-wrap", fontWeight: 400 }}>{'                stroke="#22C55E"'}</p>
+            <p style={{ margin: 0, whiteSpace: "pre-wrap", fontWeight: 400 }}>{'                stroke="hsl(var(--primary))"'}</p>
             <p style={{ margin: 0, whiteSpace: "pre-wrap", fontWeight: 400 }}>
               {'                strokeLinecap="round"'}
             </p>
@@ -184,6 +184,7 @@ const AiCodeReviews: React.FC = () => {
             <p style={{ margin: 0, whiteSpace: "pre-wrap", fontWeight: 400 }}> &lt;/svg&gt;</p>
           </div>
           <button
+            className="bg-primary-gradient"
             style={{
               position: "absolute",
               top: "calc(50% + 29.745px)",
@@ -194,7 +195,6 @@ const AiCodeReviews: React.FC = () => {
               alignItems: "center",
               justifyContent: "center",
               gap: "3.953px",
-              background: "var(--ai-primary-color)",
               color: "var(--ai-text-dark)",
               border: "none",
               cursor: "pointer",

@@ -10,8 +10,8 @@ import Link from "next/link" // Import Link for client-side navigation
 export function Header() {
   const navItems = [
     { name: "Solutions", href: "#solutions-section" },
-    { name: "Platform", href: "#platform-section" },
-    { name: "Customers", href: "#customers-section" },
+    { name: "Industries", href: "#platform-section" },
+    { name: "Contact Us", href: "#customers-section" },
   ]
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
@@ -36,7 +36,7 @@ export function Header() {
                 key={item.name}
                 href={item.href}
                 onClick={(e) => handleScroll(e, item.href)} // Add onClick handler
-                className="text-[#888888] hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
+                className="text-muted-foreground hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors"
               >
                 {item.name}
               </Link>
@@ -45,7 +45,7 @@ export function Header() {
         </div>
         <div className="flex items-center gap-4">
           <Link href="#" className="hidden md:block">
-            <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-6 py-2 rounded-full font-medium shadow-sm">
+            <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity px-6 py-2 rounded-full font-medium shadow-sm">
               Get Started
             </Button>
           </Link>
@@ -66,13 +66,13 @@ export function Header() {
                     key={item.name}
                     href={item.href}
                     onClick={(e) => handleScroll(e, item.href)} // Add onClick handler
-                    className="text-[#888888] hover:text-foreground justify-start text-lg py-2"
+                    className="text-muted-foreground hover:text-foreground justify-start text-lg py-2"
                   >
                     {item.name}
                   </Link>
                 ))}
                 <Link href="#" className="w-full mt-4">
-                  <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-6 py-2 rounded-full font-medium shadow-sm">
+                  <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity w-full px-6 py-2 rounded-full font-medium shadow-sm">
                     Get Started
                   </Button>
                 </Link>

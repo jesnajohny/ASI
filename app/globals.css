@@ -4,41 +4,61 @@
 
 @layer base {
   :root {
-    /* Themeable Colors - Restored to Original Vibe */
-    --background: 210 11% 7%; /* #0f1211 */
-    --foreground: 160 14% 93%; /* #e7eceb */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    --muted: 240 2% 16%; /* #27272a */
-    --muted-foreground: 160 14% 93% / 0.7; /* rgba(231, 236, 235, 0.7) */
-    --muted-foreground-light: 160 14% 93% / 0.5; /* rgba(231, 236, 235, 0.5) */
-    --muted-foreground-dark: 160 14% 93% / 0.6; /* rgba(231, 236, 235, 0.6) */
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    --card: 220 17% 98% / 0.01;
-    --card-foreground: 160 14% 93%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    --popover: 210 11% 7%;
-    --popover-foreground: 160 14% 93%;
+    /* New Primary Color (Solid Blue for icons, borders, etc.) */
+    --primary: 217.2 91.2% 59.8%;
+    --primary-light: 217.2 91.2% 80%;
+    --primary-dark: 217.2 91.2% 45%;
+    /* White text for high contrast on the gradient background */
+    --primary-foreground: 0 0% 100%;
 
-    /* Primary Accent Colors */
-    --primary: 165 96% 71%; /* #78fcd6 */
-    --primary-foreground: 160 8% 6%; /* #0d0f0e */
-    --primary-dark: 160 100% 50%; /* #00ffb6 */
-    --primary-light: 160 48% 87%; /* New variable for lighter teal/green shades */
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 210 40% 9.8%;
 
-    /* Secondary Accent Colors (for buttons, etc.) */
-    --secondary: 160 14% 93%; /* #e7eceb */
-    --secondary-foreground: 165 14% 8%; /* #141a18 */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 240 2% 25%; /* #3f3f42 */
-    --accent-foreground: 240 2% 96%; /* #f4f4f5 */
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 210 40% 9.8%;
 
-    --border: 240 100% 100% / 0.08; /* rgba(255, 255, 255, 0.08) */
-    --border-light: 210 17% 6% / 0.1; /* rgba(16,24,40,0.1) */
-    --border-dark: 210 17% 6% / 0.05; /* rgba(16,24,40,0.05) */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --ring: 165 96% 71%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+  }
+
+  /* Original dark theme preserved under the .dark class */
+  .dark {
+    --background: 210 11% 7%;
+    --foreground: 160 14% 93%;
+    --muted: 240 2% 16%;
+    --muted-foreground: 160 14% 93% / 0.7;
+    --card: 220 17% 98% / 0.01;
+    --card-foreground: 160 14% 93%;
+    --popover: 210 11% 7%;
+    --popover-foreground: 160 14% 93%;
+    --primary: 165 96% 71%;
+    --primary-foreground: 160 8% 6%;
+    --primary-dark: 160 100% 50%;
+    --primary-light: 160 48% 87%;
+    --secondary: 160 14% 93%;
+    --secondary-foreground: 165 14% 8%;
+    --accent: 240 2% 25%;
+    --accent-foreground: 240 2% 96%;
+    --border: 240 100% 100% / 0.08;
+    --ring: 165 96% 71%;
   }
 }
 
@@ -50,27 +70,31 @@
     @apply bg-background text-foreground;
   }
 }
-/* ADD THIS CODE AT THE END OF THE FILE */
-/* REPLACE the old @keyframes moveBlob and .blob styles with this new code */
 
-@keyframes moveBackground {
-  0% {
-    background-position: 0% 50%;
+/* New Gradient utilities */
+@layer utilities {
+  .bg-primary-gradient {
+    background-image: linear-gradient(135deg, #f87171, #fb923c, #fbbf24, #a3e635, #4ade80, #34d399, #2dd4bf, #22d3ee, #38bdf8, #60a5fa, #818cf8, #a78bfa, #c084fc, #e879f9, #f472b6);
   }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
+
+  .text-primary-gradient {
+    @apply bg-primary-gradient bg-clip-text text-transparent;
   }
 }
 
+/* Updated hero background animation for light theme */
+@keyframes moveBackground {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .animated-gradient-background {
-  background: radial-gradient(at 20% 25%, hsl(25, 30%, 25%) 0px, transparent 50%),
-              radial-gradient(at 75% 30%, hsl(160, 20%, 20%) 0px, transparent 50%),
-              radial-gradient(at 10% 80%, hsl(30, 25%, 20%) 0px, transparent 50%),
-              radial-gradient(at 80% 85%, hsl(170, 20%, 15%) 0px, transparent 50%),
-              radial-gradient(at 50% 50%, hsl(0, 0%, 10%) 0px, transparent 50%);
+  background: radial-gradient(at 20% 25%, hsla(349, 89%, 76%, 0.2) 0px, transparent 50%),
+              radial-gradient(at 75% 30%, hsla(217, 89%, 71%, 0.2) 0px, transparent 50%),
+              radial-gradient(at 10% 80%, hsla(39, 92%, 67%, 0.2) 0px, transparent 50%),
+              radial-gradient(at 80% 85%, hsla(262, 88%, 76%, 0.2) 0px, transparent 50%),
+              radial-gradient(at 50% 50%, hsla(0, 0%, 95%, 0.2) 0px, transparent 50%);
   background-size: 200% 200%;
   animation: moveBackground 40s ease infinite;
   will-change: background-position;
@@ -81,6 +105,6 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.1;
+  opacity: 0.05; /* Reduced opacity for light theme */
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
 }

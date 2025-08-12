@@ -1,6 +1,7 @@
 import { HeroSection } from "@/components/hero-section"
 import { SocialProof } from "@/components/social-proof"
 import { BentoSection } from "@/components/bento-section"
+import { SolutionsSection } from "@/components/solutions-section"
 import { LargeTestimonial } from "@/components/large-testimonial"
 import { PricingSection } from "@/components/pricing-section"
 import { TestimonialGridSection } from "@/components/testimonial-grid-section"
@@ -17,12 +18,13 @@ export default function LandingPage() {
           <HeroSection />
         </main>
         {/* The margin-top on the next line has been increased to add more space */}
-        <AnimatedSection className="relative z-10 max-w-[1320px] mx-auto px-6 mt-[500px] md:mt-[550px]" delay={0.1}>
+        {/* <AnimatedSection className="relative z-10 max-w-[1320px] mx-auto px-6 mt-[500px] md:mt-[550px]" delay={0.1}>
           <SocialProof />
-        </AnimatedSection>
+        </AnimatedSection> */}
         <AnimatedSection id="features-section" className="relative z-10 max-w-[1320px] mx-auto mt-16" delay={0.2}>
           <BentoSection />
         </AnimatedSection>
+           <SolutionsSection />
 
         {/* <AnimatedSection className="relative z-10 max-w-[1320px] mx-auto mt-8 md:mt-16" delay={0.2}>
           <LargeTestimonial />

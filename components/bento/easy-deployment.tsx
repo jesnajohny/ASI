@@ -123,7 +123,10 @@ const DeploymentEasy: React.FC<DeploymentEasyProps> = ({ width = "100%", height 
       {/* -------------------------------------------------------- */}
       {/* Call-to-action button                                   */}
       {/* -------------------------------------------------------- */}
+
+          // ... inside DeploymentEasy component
       <button
+        className="bg-primary-gradient"
         style={{
           position: "absolute",
           top: "calc(50% + 57.6px)",
@@ -134,7 +137,6 @@ const DeploymentEasy: React.FC<DeploymentEasyProps> = ({ width = "100%", height 
           justifyContent: "center",
           gap: "6.375px",
           padding: "5.1px 10.2px",
-          background: "var(--deploy-primary-color)",
           color: "hsl(var(--primary-foreground))",
           border: "none",
           cursor: "pointer",
@@ -149,8 +151,10 @@ const DeploymentEasy: React.FC<DeploymentEasyProps> = ({ width = "100%", height 
             "0px 42.075px 11.475px rgba(0, 0, 0, 0), 0px 26.775px 10.2px rgba(0, 0, 0, 0.01), 0px 15.3px 8.925px rgba(0, 0, 0, 0.05), 0px 6.375px 6.375px rgba(0, 0, 0, 0.09), 0px 1.275px 3.825px rgba(0, 0, 0, 0.1)",
         }}
       >
-        🚀 Deploy on Vercel
+        Automate with AI
       </button>
+//... rest of component
+
     </div>
   )
 }
