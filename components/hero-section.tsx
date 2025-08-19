@@ -37,7 +37,7 @@ export function HeroSection() {
         <div id="hero-cta-button-container">
           <Link href="#">
             <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity px-8 py-3 rounded-full font-medium text-base shadow-lg">
-              Get Started for Free
+              Hire Now
             </Button>
           </Link>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -22,6 +22,8 @@ import {
 import { ListItem } from "@/components/ui/list-item";
 
 export function Header() {
+  const [activeSolution, setActiveSolution] = useState("hr-employee");
+
   const navItems = [
     { name: "Industries", href: "#platform-section" },
     { name: "Contact Us", href: "#customers-section" },
@@ -39,6 +41,14 @@ export function Header() {
     }
   };
 
+  const hrAutomationItems = [
+    { title: "Performance Analytics", href: "#" },
+    { title: "Talent Acquisition", href: "#" },
+    { title: "Employee Engagement", href: "#" },
+    { title: "Compliance Monitoring", href: "#" },
+    { title: "Workforce Insights", href: "#" },
+  ];
+
   return (
     <header className="w-full py-4 px-6">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -52,32 +62,90 @@ export function Header() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Solutions</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                      <li className="row-span-3">
-                        <NavigationMenuLink asChild>
-                          <a
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                            href="#solutions-section"
-                            onClick={(e) => handleScroll(e, "#solutions-section")}
-                          >
-                            <div className="mb-2 mt-4 text-lg font-medium">
-                              AI HR Employee
-                            </div>
-                            <p className="text-sm leading-tight text-muted-foreground">
-                              Automate HR processes, from onboarding to
-                              compliance, with an AI agent.
+                    <div className="grid grid-cols-3 gap-4 p-4 md:w-[600px] lg:w-[700px]">
+                      {/* Left Column for Titles */}
+                      <div className="col-span-1 flex flex-col space-y-2">
+                        <div
+                          onMouseEnter={() => setActiveSolution("hr-employee")}
+                          className={`p-3 rounded-md cursor-pointer text-left ${
+                            activeSolution === "hr-employee"
+                              ? "bg-accent"
+                              : "hover:bg-accent/50"
+                          }`}
+                        >
+                          <p className="font-semibold text-foreground">
+                            HR AI Employee
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Hire a dedicated AI agent for your HR needs.
+                          </p>
+                        </div>
+                        <div
+                          onMouseEnter={() =>
+                            setActiveSolution("hr-automation")
+                          }
+                          className={`p-3 rounded-md cursor-pointer text-left ${
+                            activeSolution === "hr-automation"
+                              ? "bg-accent"
+                              : "hover:bg-accent/50"
+                          }`}
+                        >
+                          <p className="font-semibold text-foreground">
+                            HR AI Automation
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Automate your people and operations.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Right Column for Content */}
+                      <div className="col-span-2 p-4 rounded-md bg-muted/30 text-left">
+                        {activeSolution === "hr-employee" && (
+                          <div>
+                            <p className="font-bold text-lg mb-2">
+                              Hire HR AI Employee
                             </p>
-                          </a>
-                        </NavigationMenuLink>
-                      </li>
-                      <ListItem
-                        href="#solutions-section"
-                        title="AI HR Employee"
-                        onClick={(e) => handleScroll(e, "#solutions-section")}
-                      >
-                        Your always-available, compliance-savvy people leader.
-                      </ListItem>
-                    </ul>
+                            <ul className="list-none m-0 p-0">
+                              <ListItem
+                                href="#solutions-section"
+                                title="Dedicated HR Agent"
+                                onClick={(e) =>
+                                  handleScroll(e, "#solutions-section")
+                                }
+                              >
+                                Automate HR processes with a dedicated AI agent
+                                that handles everything from onboarding to
+                                compliance.
+                              </ListItem>
+                            </ul>
+                          </div>
+                        )}
+                        {activeSolution === "hr-automation" && (
+                          <div>
+                            <p className="font-bold text-lg mb-2">
+                              Performance Analytics & More
+                            </p>
+                            <ul className="space-y-2 list-none m-0 p-0">
+                              {hrAutomationItems.map((item) => (
+                                <li key={item.title}>
+                                  <NavigationMenuLink asChild>
+                                    <a
+                                      href={item.href}
+                                      className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                    >
+                                      <div className="text-sm font-medium leading-none">
+                                        {item.title}
+                                      </div>
+                                    </a>
+                                  </NavigationMenuLink>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
               </NavigationMenuList>
