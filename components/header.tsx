@@ -166,7 +166,7 @@ export function Header() {
           <Link href="/login" className="hidden md:block text-muted-foreground hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors">
             Login
           </Link>
-          <Link href="/hire" className="hidden md:block">
+          <Link href="/signup" className="hidden md:block">
             <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity px-6 py-2 rounded-full font-medium shadow-sm">
               Hire an AI Employee
             </Button>
@@ -208,7 +208,7 @@ export function Header() {
                 <Link href="/login" className="text-muted-foreground hover:text-foreground justify-start text-lg py-2">
                   Login
                 </Link>
-                <Link href="/hire" className="w-full mt-4">
+                <Link href="/signup" className="w-full mt-4">
                   <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity w-full px-6 py-2 rounded-full font-medium shadow-sm">
                     Hire an AI Employee
                   </Button>

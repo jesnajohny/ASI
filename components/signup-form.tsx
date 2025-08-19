@@ -1,9 +1,8 @@
 'use client';
-import React from 'react';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 const CheckIcon = ({ className }: { className?: string }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className={className || "w-5 h-5"}>
@@ -38,7 +37,7 @@ const RotatingText = () => {
     }, []);
 
     return (
-        <div className="relative h-28 font-grotesk font-bold">
+        <div className="relative h-32 font-grotesk font-bold text-5xl lg:text-6xl">
             <AnimatePresence>
                 <motion.span
                     key={index}
@@ -63,20 +62,39 @@ export default function SignupForm() {
         email: '',
         password: '',
     });
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would typically handle the form submission,
-        // e.g., send the data to your backend API.
-        console.log('Form submitted:', formData);
+        setError(null);
 
-        // Redirect to the hiring page
-        router.push('/hire');
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: formData.email,
+                password: formData.password,
+                options: {
+                    data: {
+                        full_name: formData.fullName,
+                    },
+                },
+            });
+
+            if (error) {
+                setError(error.message);
+                return;
+            }
+
+            if (data.user) {
+                router.push('/hire');
+            }
+        } catch (error) {
+            setError('An unexpected error occurred.');
+        }
     };
 
     const containerVariants = {
@@ -104,9 +122,8 @@ export default function SignupForm() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7, ease: "easeOut" }}
                 >
-                    <h1 className="text-4xl lg:text-5xl font-sans font-regular mb-4 leading-snug">
+                    <h1 className="text-4xl lg:text-5xl font-sans font-normal mb-2 leading-tight">
                         Your new AI 
-                        <br />
                         <RotatingText />
                     </h1>
                     <p className="text-muted-foreground text-lg mb-8">Unlock unprecedented efficiency by hiring autonomous AI employees for your business needs.</p>
@@ -206,6 +223,16 @@ export default function SignupForm() {
                                 className="mt-1 w-full p-3 bg-transparent border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition"
                             />
                         </motion.div>
+
+                        {error && (
+                            <motion.div 
+                                className="p-3 bg-destructive text-destructive-foreground rounded-lg text-center"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                {error}
+                            </motion.div>
+                        )}
 
                         <motion.button
                             type="submit"

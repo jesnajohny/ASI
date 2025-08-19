@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
 
 const employeeTypes: Record<string, string[]> = {
   'HR Manager': ['Onboarding new employees', 'Managing payroll', 'Handling employee benefits', 'Conducting performance reviews'],
@@ -16,10 +18,12 @@ const employeeTypes: Record<string, string[]> = {
 };
 
 export default function HireFlow() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [employeeType, setEmployeeType] = useState('');
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [customTask, setCustomTask] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleTaskChange = (task: string) => {
     setSelectedTasks(prev => 
@@ -40,6 +44,37 @@ export default function HireFlow() {
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
+
+  const handleHire = async () => {
+    setError(null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error('You must be logged in to hire an employee.');
+      }
+
+      const { error } = await supabase
+        .from('employees')
+        .insert([
+          { 
+            user_id: user.id, 
+            employee_type: employeeType, 
+            tasks: selectedTasks 
+          },
+        ]);
+
+      if (error) {
+        throw error;
+      }
+
+      // Redirect to a dashboard or success page
+      router.push('/dashboard'); 
+
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-4 font-sans">
@@ -62,7 +97,7 @@ export default function HireFlow() {
                 <h2 className="text-3xl font-bold text-center mb-4">Hire Your New AI Employee</h2>
                 <p className="text-muted-foreground text-center mb-8">Let's get started by selecting the type of AI employee you need.</p>
                 <div className="flex flex-col items-center">
-                  <Select onValueChange={setEmployeeType}>
+                  <Select onValueChange={setEmployeeType} value={employeeType}>
                     <SelectTrigger className="w-[280px]">
                       <SelectValue placeholder="Select Employee Type" />
                     </SelectTrigger>
@@ -119,6 +154,9 @@ export default function HireFlow() {
                     <li key={task}>{task}</li>
                   ))}
                 </ul>
+                {error && (
+                    <p className="mt-4 text-sm text-destructive">{error}</p>
+                )}
               </div>
             )}
           </motion.div>
@@ -130,11 +168,11 @@ export default function HireFlow() {
             </Button>
           )}
           {step < 3 ? (
-            <Button onClick={nextStep} className="ml-auto">
+            <Button onClick={nextStep} className="ml-auto" disabled={!employeeType}>
               Continue
             </Button>
           ) : (
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleHire}>
               Hire AI Employee
             </Button>
           )}
