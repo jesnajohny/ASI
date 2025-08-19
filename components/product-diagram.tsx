@@ -274,10 +274,6 @@ export function ProductDiagram() {
   const slackRef = useRef<HTMLDivElement>(null);
   const confluenceRef = useRef<HTMLDivElement>(null);
   const centerHubRef = useRef<HTMLDivElement>(null);
-  const askHRRef = useRef<HTMLDivElement>(null);
-  const hiringOpsRef = useRef<HTMLDivElement>(null);
-  const reviewPrepRef = useRef<HTMLDivElement>(null);
-  const onboardingBuddyRef = useRef<HTMLDivElement>(null);
   
   // AI HR Employee Hub
   const aiHREmployeeRef = useRef<HTMLDivElement>(null);
@@ -324,29 +320,6 @@ export function ProductDiagram() {
             </Circle>
         </div>
 
-        {/* Operations Layer */}
-        <div className="flex h-full flex-col justify-between" style={{height: "70%"}}>
-           <Destination ref={askHRRef} text="AskHR">
-             <Target className="text-neutral-500" />
-           </Destination>
-           <Destination ref={hiringOpsRef} text="Hiring Ops">
-             <Briefcase className="text-neutral-500" />
-           </Destination>
-           <Destination ref={reviewPrepRef} text="Employee Reviews">
-             <Pen className="text-neutral-500" />
-           </Destination>
-           <Destination ref={onboardingBuddyRef} text="Employee Onboarding">
-            <Sprout className="text-neutral-500" />
-           </Destination>
-        </div>
-
-        {/* AI HR Employee Hub */}
-        <div className="flex h-full items-center justify-center">
-            <AICircle ref={aiHREmployeeRef} text="AI HR Employee">
-                <Bot className="size-8" />
-            </AICircle>
-        </div>
-
         {/* AI Operations - Right Column */}
         <div className="flex h-full flex-col justify-between" style={{height: "85%"}}>
            <Destination ref={performanceAnalyticsRef} text="Performance Analytics">
@@ -365,6 +338,13 @@ export function ProductDiagram() {
              <Brain className="text-indigo-600" />
            </Destination>
         </div>
+
+        {/* AI HR Employee Hub */}
+        <div className="flex h-full items-center justify-center">
+            <AICircle ref={aiHREmployeeRef} text="AI HR Employee">
+                <Bot className="size-8" />
+            </AICircle>
+        </div>
       </div>
 
       {/* Beams from left integrations to center */}
@@ -375,25 +355,19 @@ export function ProductDiagram() {
       <AnimatedBeam containerRef={containerRef} fromRef={slackRef} toRef={centerHubRef} curvature={20} endXOffset={-10} active={true} duration={3} delay={1.3} />
       <AnimatedBeam containerRef={containerRef} fromRef={confluenceRef} toRef={centerHubRef} curvature={40} endXOffset={-10} active={true} duration={3} delay={1.5} />
       
-      {/* Beams from center to operations */}
-      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={askHRRef} startXOffset={10} curvature={-20} active={true} duration={3} delay={0.8} />
-      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={hiringOpsRef} startXOffset={10} curvature={-10} active={true} duration={3} delay={1.0} />
-      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={reviewPrepRef} startXOffset={10} curvature={10} active={true} duration={3} delay={1.2} />
-      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={onboardingBuddyRef} startXOffset={10} curvature={20} active={true} duration={3} delay={1.4} />
+      {/* Beams from center to AI Operations */}
+      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={performanceAnalyticsRef} startXOffset={10} endYOffset={-16} curvature={-20} active={true} duration={3} delay={0.8} />
+      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={talentAcquisitionRef} startXOffset={10} endYOffset={-16} curvature={-10} active={true} duration={3} delay={1.0} />
+      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={employeeEngagementRef} startXOffset={10} endYOffset={-16} curvature={10} active={true} duration={3} delay={1.2} />
+      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={complianceMonitoringRef} startXOffset={10} endYOffset={-16} curvature={20} active={true} duration={3} delay={1.4} />
+      <AnimatedBeam containerRef={containerRef} fromRef={centerHubRef} toRef={workforceInsightsRef} startXOffset={15} endYOffset={-16} curvature={25} active={true} duration={3} delay={3.2} gradientStartColor="#8b5cf6" gradientStopColor="#6366f1" />
 
-      {/* Beams from operations to AI HR Employee */}
-      <AnimatedBeam containerRef={containerRef} fromRef={askHRRef} toRef={aiHREmployeeRef} startXOffset={10} endXOffset={-15} curvature={-15} active={true} duration={3} delay={1.6} />
-      <AnimatedBeam containerRef={containerRef} fromRef={hiringOpsRef} toRef={aiHREmployeeRef} startXOffset={10} endXOffset={-15} curvature={-5} active={true} duration={3} delay={1.8} />
-      <AnimatedBeam containerRef={containerRef} fromRef={reviewPrepRef} toRef={aiHREmployeeRef} startXOffset={10} endXOffset={-15} curvature={5} active={true} duration={3} delay={2.0} />
-      <AnimatedBeam containerRef={containerRef} fromRef={onboardingBuddyRef} toRef={aiHREmployeeRef} startXOffset={10} endXOffset={-15} curvature={15} active={true} duration={3} delay={2.2} />
-
-      {/* Beams from AI HR Employee to AI Operations */}
-      <AnimatedBeam containerRef={containerRef} fromRef={aiHREmployeeRef} toRef={performanceAnalyticsRef} startXOffset={15} curvature={-25} active={true} duration={3} delay={2.4} gradientStartColor="#8b5cf6" gradientStopColor="#06b6d4" />
-      <AnimatedBeam containerRef={containerRef} fromRef={aiHREmployeeRef} toRef={talentAcquisitionRef} startXOffset={15} curvature={-12} active={true} duration={3} delay={2.6} gradientStartColor="#8b5cf6" gradientStopColor="#10b981" />
-      <AnimatedBeam containerRef={containerRef} fromRef={aiHREmployeeRef} toRef={employeeEngagementRef} startXOffset={15} curvature={0} active={true} duration={3} delay={2.8} gradientStartColor="#8b5cf6" gradientStopColor="#a855f7" />
-      <AnimatedBeam containerRef={containerRef} fromRef={aiHREmployeeRef} toRef={complianceMonitoringRef} startXOffset={15} curvature={12} active={true} duration={3} delay={3.0} gradientStartColor="#8b5cf6" gradientStopColor="#f97316" />
-      <AnimatedBeam containerRef={containerRef} fromRef={aiHREmployeeRef} toRef={workforceInsightsRef} startXOffset={15} curvature={25} active={true} duration={3} delay={3.2} gradientStartColor="#8b5cf6" gradientStopColor="#6366f1" />
-
+      {/* Beams from AI Operations to AI HR Employee */}
+      <AnimatedBeam containerRef={containerRef} fromRef={performanceAnalyticsRef} toRef={aiHREmployeeRef} startXOffset={-10} startYOffset={-16} curvature={-25} active={true} duration={3} delay={2.4} gradientStartColor="#8b5cf6" gradientStopColor="#06b6d4" />
+      <AnimatedBeam containerRef={containerRef} fromRef={talentAcquisitionRef} toRef={aiHREmployeeRef} startXOffset={-10} startYOffset={-16} curvature={-12} active={true} duration={3} delay={2.6} gradientStartColor="#8b5cf6" gradientStopColor="#10b981" />
+      <AnimatedBeam containerRef={containerRef} fromRef={employeeEngagementRef} toRef={aiHREmployeeRef} startXOffset={-10} startYOffset={-16} curvature={0} active={true} duration={3} delay={2.8} gradientStartColor="#8b5cf6" gradientStopColor="#a855f7" />
+      <AnimatedBeam containerRef={containerRef} fromRef={complianceMonitoringRef} toRef={aiHREmployeeRef} startXOffset={-10} startYOffset={-16} curvature={12} active={true} duration={3} delay={3.0} gradientStartColor="#8b5cf6" gradientStopColor="#f97316" />
+      <AnimatedBeam containerRef={containerRef} fromRef={workforceInsightsRef} toRef={aiHREmployeeRef} startXOffset={-10} startYOffset={-16} curvature={25} active={true} duration={3} delay={3.2} gradientStartColor="#8b5cf6" gradientStopColor="#6366f1" />
     </div>
   );
 }

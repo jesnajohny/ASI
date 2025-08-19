@@ -163,9 +163,12 @@ export function Header() {
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="#" className="hidden md:block">
+          <Link href="/login" className="hidden md:block text-muted-foreground hover:text-foreground px-4 py-2 rounded-full font-medium transition-colors">
+            Login
+          </Link>
+          <Link href="/hire" className="hidden md:block">
             <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity px-6 py-2 rounded-full font-medium shadow-sm">
-              Get Started
+              Hire an AI Employee
             </Button>
           </Link>
           <Sheet>
@@ -202,9 +205,12 @@ export function Header() {
                     {item.name}
                   </Link>
                 ))}
-                <Link href="#" className="w-full mt-4">
+                <Link href="/login" className="text-muted-foreground hover:text-foreground justify-start text-lg py-2">
+                  Login
+                </Link>
+                <Link href="/hire" className="w-full mt-4">
                   <Button className="bg-primary-gradient text-primary-foreground hover:opacity-90 transition-opacity w-full px-6 py-2 rounded-full font-medium shadow-sm">
-                    Get Started
+                    Hire an AI Employee
                   </Button>
                 </Link>
               </nav>

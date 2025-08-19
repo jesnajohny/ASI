@@ -19,6 +19,10 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+        grotesk: ['var(--font-grotesk)'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
