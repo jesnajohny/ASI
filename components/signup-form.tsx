@@ -84,12 +84,22 @@ export default function SignupForm() {
                 },
             });
 
-            if (error) {
-                setError(error.message);
+               if (error) {
+                if (error.message.includes("User already registered")) {
+                    const queryParams = new URLSearchParams({
+                        email: formData.email,
+                        password: formData.password
+                    }).toString();
+                    router.push(`/login?${queryParams}`);
+                } else {
+                    setError(error.message);
+                }
                 return;
             }
 
             if (data.user) {
+                // If signup is successful and email confirmation is disabled,
+                // the user is also logged in. Redirect to hire flow.
                 router.push('/hire');
             }
         } catch (error) {
