@@ -33,7 +33,7 @@ const config = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
           dark: "hsl(var(--primary-dark))",
-          light: "hsl(var(--primary-light))", // Added primary-light
+          light: "hsl(var(--primary-light))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -59,6 +59,13 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom pastel colors for cards
+        'card-hr': '#FFDCEC',
+        'card-marketer': '#FFEFA8',
+        'card-sales': '#CAEBFF',
+        'card-scrum': '#ADF7B6',
+        'card-assistant': '#FFC09F',
+        'card-ops': '#ABC4FF',
       },
       borderRadius: {
         lg: "var(--radius)",

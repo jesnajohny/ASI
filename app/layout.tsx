@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Space_Grotesk, Inter_Tight } from 'next/font/google';
+import { Inter_Tight, Space_Grotesk, Geist } from 'next/font/google';
 import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 
