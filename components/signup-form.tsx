@@ -100,7 +100,7 @@ export default function SignupForm() {
             if (data.user) {
                 // If signup is successful and email confirmation is disabled,
                 // the user is also logged in. Redirect to hire flow.
-                router.push('/hire');
+                router.push('/workspace-setup');
             }
         } catch (error) {
             setError('An unexpected error occurred.');

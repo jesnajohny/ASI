@@ -39,24 +39,52 @@ function LoginFormContent() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        console.log("Login submitted for:", formData.email);
 
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             });
 
-            if (error) {
-                setError(error.message);
+            if (loginError) {
+                console.error("Login error:", loginError.message);
+                setError(loginError.message);
                 return;
             }
+            
+            if (loginData.user) {
+                console.log("Login successful. User:", loginData.user.id);
+                console.log("Checking for existing companies...");
+                
+                const { data: companies, error: companiesError } = await supabase
+                    .from('companies')
+                    .select('id')
+                    .eq('user_id', loginData.user.id)
+                    .limit(1);
 
-            router.push('/dashboard');
+                if (companiesError) {
+                    console.error("Error fetching companies:", companiesError.message);
+                    setError("Could not check for companies. Please try again.");
+                    return;
+                }
+
+                router.refresh(); // Refresh server components before redirecting
+
+                if (companies && companies.length > 0) {
+                    console.log("Companies found. Redirecting to /dashboard/companies");
+                    router.push('/dashboard/companies');
+                } else {
+                    console.log("No companies found. Redirecting to /workspace-setup");
+                    router.push('/workspace-setup');
+                }
+            }
 
         } catch (error) {
+            console.error("An unexpected error occurred during login:", error);
             setError('An unexpected error occurred.');
         }
     };

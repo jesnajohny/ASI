@@ -1,0 +1,3 @@
+we need to generate a unique id for each company and each workspace and each ai employee that gets created . once the user click on the complete setup & hire button we redirect the user localhost/dashboard/companyid/workspaceid 
+
+for signedin/loggedin users lets have breadcrumb like header/navbar where the left end icon is home / company name / workspace name and in the right end for now lets just have user dropdown with useremail id displayed and sign out button 

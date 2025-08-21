@@ -72,7 +72,7 @@ const employeeTypes: Record<EmployeeRole, {
 };
 
 const ProgressIndicator = ({ currentStep }: { currentStep: number }) => {
-  const steps = ['Select Role', 'Define Tasks', 'Setup Workspace'];
+  const steps = ['Setup Workspace', 'Select Role', 'Define Tasks'];
   const progressPercentage = currentStep === 1 ? 0 : ((currentStep - 1) / (steps.length - 1)) * 100;
 
   return (
@@ -127,6 +127,7 @@ const ProgressIndicator = ({ currentStep }: { currentStep: number }) => {
   );
 };
 
+
 export default function HireFlow() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -135,12 +136,30 @@ export default function HireFlow() {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [customTask, setCustomTask] = useState('');
   const [workspaceData, setWorkspaceData] = useState({
+    workspaceName: '',
     companyName: '',
     websiteUrl: '',
     teamSize: '',
+    currentAiEmployees: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const cardContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { y: 20, opacity: 0, scale: 0.95 },
+    visible: { y: 0, opacity: 1, scale: 1 }
+  };
 
   useEffect(() => {
     const getUser = async () => {
@@ -153,7 +172,7 @@ export default function HireFlow() {
   const handleEmployeeSelect = (type: EmployeeRole) => {
     setEmployeeType(type);
     setSelectedTasks(employeeTypes[type].tasks.slice(0, 3));
-    setStep(2);
+    setStep(3);
   };
 
   const handleTaskChange = (task: string) => {
@@ -174,15 +193,17 @@ export default function HireFlow() {
     setWorkspaceData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTeamSizeChange = (value: string) => {
-    setWorkspaceData(prev => ({ ...prev, teamSize: value }));
+  const handleSelectChange = (name: keyof typeof workspaceData) => (value: string) => {
+    setWorkspaceData(prev => ({ ...prev, [name]: value }));
   };
 
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
-  const handleHire = async () => {
+   const handleHire = async () => {
+    console.log("Attempting to hire...");
     if (!user) {
+      console.error("No user found. Aborting hire.");
       setError("You must be logged in to hire an employee.");
       return;
     }
@@ -190,47 +211,89 @@ export default function HireFlow() {
     setError(null);
     setIsLoading(true);
     try {
-      const { error } = await supabase
-        .from('employees')
-        .insert([
-          {
-            user_id: user.id,
-            employee_type: employeeType,
-            tasks: selectedTasks,
-            company_name: workspaceData.companyName,
-            website_url: workspaceData.websiteUrl,
-            team_size: workspaceData.teamSize,
-          },
-        ]);
+      let companyId: string;
 
-      if (error) throw error;
-      router.push('/dashboard');
+      // Step 1: Check if a company with this name already exists for the user.
+      // We remove .single() to handle cases where 0 rows are returned.
+      console.log("Checking for existing company:", workspaceData.companyName);
+      const { data: existingCompanies, error: fetchError } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('company_name', workspaceData.companyName)
+        .eq('user_id', user.id);
+      
+      if (fetchError) throw fetchError;
+
+      if (existingCompanies && existingCompanies.length > 0) {
+        // If the company exists, use its ID.
+        companyId = existingCompanies[0].id;
+        console.log("Existing company found:", companyId);
+      } else {
+        // Step 2: If the company doesn't exist, create it.
+        // .single() is safe here because we are creating and immediately selecting one row.
+        console.log("No existing company found. Creating new one.");
+        const { data: newCompany, error: companyError } = await supabase
+          .from('companies')
+          .insert({user_id: user.id,company_name: workspaceData.companyName})
+          .select('id')
+          .single();
+
+        if (companyError) throw companyError;
+        companyId = newCompany.id;
+        console.log("New company created:", companyId);
+      }
+
+      // Step 3: Insert into the workspaces table
+      console.log("Creating workspace...");
+      const { data: workspace, error: workspaceError } = await supabase
+        .from('workspaces')
+        .insert({
+          user_id: user.id,
+          company_id: companyId, // Link to the company
+          workspace_name: workspaceData.workspaceName,
+          website_url: workspaceData.websiteUrl,
+          team_size: workspaceData.teamSize,
+          current_ai_employees: workspaceData.currentAiEmployees,
+        })
+        .select('id')
+        .single();
+
+      if (workspaceError) throw workspaceError;
+      const workspaceId = workspace.id;
+      console.log("Workspace created:", workspaceId);
+
+
+      // Step 4: Insert into the employees table
+      const { error: employeeError } = await supabase
+        .from('employees')
+        .insert({
+          user_id: user.id,
+          workspace_id: workspaceId,
+          employee_type: employeeType,
+          tasks: selectedTasks,
+          name: employeeType,
+        });
+
+      if (employeeError) throw employeeError;
+      console.log("Employee created successfully.");
+      
+      // Step 5: Redirect to the correct dashboard URL
+      console.log(`All data saved. Refreshing router and redirecting to: /dashboard/${companyId}/${workspaceId}`);
+      router.refresh(); // Refresh server components
+      router.push(`/dashboard/${companyId}/${workspaceId}`);
+
     } catch (error: any) {
-      setError(error.message);
+      console.error("Error during hire process:", error);
+      setError(`An error occurred: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const cardContainerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { y: 20, opacity: 0, scale: 0.95 },
-    visible: { y: 0, opacity: 1, scale: 1 }
-  };
-
   const userName = user?.user_metadata.full_name?.split(' ')[0] || 'there';
 
   return (
+    // ... JSX for the component remains the same ...
     <div id="hire-flow-page-container" className="min-h-screen bg-gray-50 text-foreground flex items-center justify-center p-4">
       <div id="hire-flow-main-card" className="w-full max-w-7xl mx-auto p-8 sm:p-12">
         <AnimatePresence mode="wait">
@@ -245,14 +308,108 @@ export default function HireFlow() {
             {step > 0 && <ProgressIndicator currentStep={step} />}
 
             {step === 1 && (
-              <div id="step-1-role-selection" className="text-center">
-                <h1 id="welcome-heading" className="text-5xl font-bold text-gray-900 mb-3 font-sans">
-                  Welcome {userName},
-                </h1>
-                <h2 id="welcome-subheading" className="text-xl text-gray-600 mb-16 font-sans">
-                  Let's build your team.
+              <div id="step-1-workspace-setup" className="text-center">
+                <h2 id="workspace-setup-heading" className="text-3xl font-bold mb-4">
+                  Welcome, {userName}! Let's set up your workspace.
                 </h2>
+                <p id="workspace-setup-subheading" className="text-muted-foreground mb-8">
+                  Tell us a bit about your company to personalize your experience.
+                </p>
 
+                <div id="workspace-form" className="space-y-4 max-w-md mx-auto text-left">
+                  <div id="workspace-name-field">
+                    <label className="text-sm font-medium text-muted-foreground" htmlFor="workspaceName">
+                      Workspace Name
+                    </label>
+                    <Input
+                      id="workspaceName"
+                      name="workspaceName"
+                      value={workspaceData.workspaceName}
+                      onChange={handleWorkspaceChange}
+                      placeholder="e.g., Marketing Team"
+                      className="mt-1"
+                    />
+                  </div>
+                  
+                  <div id="company-name-field">
+                    <label className="text-sm font-medium text-muted-foreground" htmlFor="companyName">
+                      Company Name
+                    </label>
+                    <Input
+                      id="companyName"
+                      name="companyName"
+                      value={workspaceData.companyName}
+                      onChange={handleWorkspaceChange}
+                      placeholder="e.g., Stark Industries"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div id="website-url-field">
+                    <label className="text-sm font-medium text-muted-foreground" htmlFor="websiteUrl">
+                      Website URL
+                    </label>
+                    <Input
+                      id="websiteUrl"
+                      name="websiteUrl"
+                      value={workspaceData.websiteUrl}
+                      onChange={handleWorkspaceChange}
+                      placeholder="e.g., www.starkindustries.com"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div id="team-size-field">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Team Size
+                    </label>
+                    <Select onValueChange={handleSelectChange('teamSize')} value={workspaceData.teamSize}>
+                      <SelectTrigger id="team-size-select-trigger" className="w-full mt-1">
+                        <SelectValue placeholder="Select team size" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-10">1-10 members</SelectItem>
+                        <SelectItem value="11-50">11-50 members</SelectItem>
+                        <SelectItem value="51-200">51-200 members</SelectItem>
+                        <SelectItem value="201+">201+ members</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div id="ai-employees-field">
+                    <label className="text-sm font-medium text-muted-foreground">
+                      How many AI employees or automations do you currently use?
+                    </label>
+                    <Select onValueChange={handleSelectChange('currentAiEmployees')} value={workspaceData.currentAiEmployees}>
+                      <SelectTrigger id="ai-employees-select-trigger" className="w-full mt-1">
+                        <SelectValue placeholder="Select a range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">None</SelectItem>
+                        <SelectItem value="1-5">1-5</SelectItem>
+                        <SelectItem value="6-10">6-10</SelectItem>
+                        <SelectItem value="10+">More than 10</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {error && (
+                  <p id="error-message-container" className="mt-6 text-sm text-destructive">
+                    {error}
+                  </p>
+                )}
+              </div>
+            )}
+            
+            {step === 2 && (
+              <div id="step-2-role-selection" className="text-center">
+                 <h2 id="role-selection-heading" className="text-3xl font-bold text-center mb-2">
+                  What type of AI employee do you want to hire?
+                </h2>
+                <p id="role-selection-subheading" className="text-muted-foreground text-center mb-8">
+                  You can add more team members later.
+                </p>
                 <motion.div
                   id="employee-card-grid"
                   className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 max-w-6xl mx-auto"
@@ -272,7 +429,6 @@ export default function HireFlow() {
                         onClick={() => handleEmployeeSelect(type)}
                         className={`group relative ${bgColor} border border-gray-200 rounded-2xl p-8 text-left cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-gray-300 bg-white`}
                       >
-                        {/* Header with Icon and Title */}
                         <div className="flex items-start justify-between mb-6">
                           <div className="flex-1">
                             <h3 className="font-bold text-gray-900 text-xl mb-2 leading-tight">{type}</h3>
@@ -282,24 +438,17 @@ export default function HireFlow() {
                             {icon}
                           </div>
                         </div>
-
-                        {/* Tasks List */}
                         <div className="space-y-3 mb-6">
-                          {tasksPreview.map((task, index) => (
+                          {tasksPreview.map((task) => (
                             <div key={task} className="flex items-start text-sm text-gray-700">
                               <ChevronRight className="w-4 h-4 mr-3 mt-0.5 text-gray-400 flex-shrink-0" />
                               <span className="leading-relaxed">{task}</span>
                             </div>
                           ))}
                         </div>
-
-                        {/* Learn More Link */}
                         <div className="flex items-center text-sm font-semibold group-hover:text-gray-900 transition-colors duration-200">
                           <span className={accentColor}>Add to team</span>
-                          {/* <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" /> */}
                         </div>
-
-                        {/* Hover Effect Overlay */}
                         <div className="absolute inset-0 bg-white bg-opacity-0 group-hover:bg-opacity-5 rounded-2xl transition-all duration-300" />
                       </motion.div>
                     );
@@ -308,8 +457,8 @@ export default function HireFlow() {
               </div>
             )}
 
-            {step === 2 && employeeType && (
-              <div id="step-2-task-definition">
+            {step === 3 && employeeType && (
+              <div id="step-3-task-definition">
                 <h2 id="task-definition-heading" className="text-3xl font-bold text-center mb-2">
                   What will your {employeeType} focus on?
                 </h2>
@@ -365,75 +514,11 @@ export default function HireFlow() {
                 </div>
               </div>
             )}
-
-            {step === 3 && (
-              <div id="step-3-workspace-setup" className="text-center">
-                <h2 id="workspace-setup-heading" className="text-3xl font-bold mb-4">
-                  Almost there, {userName}!
-                </h2>
-                <p id="workspace-setup-subheading" className="text-muted-foreground mb-8">
-                  Tell us a bit about your company to personalize your workspace.
-                </p>
-
-                <div id="workspace-form" className="space-y-4 max-w-md mx-auto text-left">
-                  <div id="company-name-field">
-                    <label className="text-sm font-medium text-muted-foreground" htmlFor="companyName">
-                      Company Name
-                    </label>
-                    <Input
-                      id="companyName"
-                      name="companyName"
-                      value={workspaceData.companyName}
-                      onChange={handleWorkspaceChange}
-                      placeholder="e.g., Stark Industries"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div id="website-url-field">
-                    <label className="text-sm font-medium text-muted-foreground" htmlFor="websiteUrl">
-                      Website URL
-                    </label>
-                    <Input
-                      id="websiteUrl"
-                      name="websiteUrl"
-                      value={workspaceData.websiteUrl}
-                      onChange={handleWorkspaceChange}
-                      placeholder="e.g., www.starkindustries.com"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div id="team-size-field">
-                    <label className="text-sm font-medium text-muted-foreground">
-                      Team Size
-                    </label>
-                    <Select onValueChange={handleTeamSizeChange} value={workspaceData.teamSize}>
-                      <SelectTrigger id="team-size-select-trigger" className="w-full mt-1">
-                        <SelectValue placeholder="Select team size" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-10">1-10</SelectItem>
-                        <SelectItem value="11-50">11-50</SelectItem>
-                        <SelectItem value="51-200">51-200</SelectItem>
-                        <SelectItem value="201+">201+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {error && (
-                  <p id="error-message-container" className="mt-6 text-sm text-destructive">
-                    {error}
-                  </p>
-                )}
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
 
-        {step > 1 && (
-          <div id="navigation-controls" className="flex justify-between items-center mt-10 pt-6 border-t border-border">
+        <div id="navigation-controls" className="flex justify-between items-center mt-10 pt-6 border-t border-border">
+          {step > 1 ? (
             <Button
               id="back-button"
               onClick={prevStep}
@@ -441,27 +526,29 @@ export default function HireFlow() {
             >
               Back
             </Button>
+          ) : (
+            <div /> // Placeholder to keep "Continue" button on the right
+          )}
 
-            {step === 2 ? (
-              <Button
-                id="continue-button"
-                onClick={nextStep}
-                className="bg-primary-gradient text-primary-foreground"
-              >
-                Continue
-              </Button>
-            ) : (
-              <Button
-                id="complete-setup-button"
-                className="bg-primary-gradient text-primary-foreground"
-                onClick={handleHire}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Setting up...' : 'Complete Setup & Hire'}
-              </Button>
-            )}
-          </div>
-        )}
+          {step < 3 ? (
+            <Button
+              id="continue-button"
+              onClick={nextStep}
+              className="bg-primary-gradient text-primary-foreground"
+            >
+              Continue
+            </Button>
+          ) : (
+            <Button
+              id="complete-setup-button"
+              className="bg-primary-gradient text-primary-foreground"
+              onClick={handleHire}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Setting up...' : 'Complete Setup & Hire'}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
