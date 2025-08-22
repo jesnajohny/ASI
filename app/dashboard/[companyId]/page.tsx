@@ -1,3 +1,4 @@
+//app\dashboard\[companyId]\page.tsx
 import React from 'react';
 
 type CompanyDashboardPageProps = {

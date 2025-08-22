@@ -1,3 +1,4 @@
+//app\dashboard\companies\page.tsx
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -6,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+// This is a Server Component by default, and it MUST be async
 export default async function CompaniesPage() {
   const supabase = createServerComponentClient({ cookies });
 
-  // Middleware has already checked for an active session.
-  // We get the user here to fetch data specific to them.
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -23,6 +23,7 @@ export default async function CompaniesPage() {
     .eq('user_id', user.id);
 
   if (error) {
+    console.error("Error fetching companies:", error);
     return <p className="p-8">Could not fetch companies.</p>;
   }
 
@@ -47,7 +48,7 @@ export default async function CompaniesPage() {
 
         <main>
           {companies && companies.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md-grid-cols-2 gap-6">
               {companies.map((company) => (
                 <Link href={`/dashboard/${company.id}`} key={company.id}>
                   <div className="block p-6 border rounded-lg hover:bg-accent transition-colors">

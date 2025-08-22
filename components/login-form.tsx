@@ -42,23 +42,24 @@ function LoginFormContent() {
    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
-        console.log("Login submitted for:", formData.email);
+        console.log("LOGIN_ATTEMPT: Form submitted with email:", formData.email);
 
         try {
+            console.log("LOGIN_ATTEMPT: Calling Supabase signInWithPassword...");
             const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
             });
 
             if (loginError) {
-                console.error("Login error:", loginError.message);
+                console.error("LOGIN_ERROR: Supabase auth error:", loginError.message);
                 setError(loginError.message);
                 return;
             }
             
             if (loginData.user) {
-                console.log("Login successful. User:", loginData.user.id);
-                console.log("Checking for existing companies...");
+                console.log("LOGIN_SUCCESS: User authenticated successfully. User ID:", loginData.user.id);
+                console.log("LOGIN_SUCCESS: Checking for existing companies for this user...");
                 
                 const { data: companies, error: companiesError } = await supabase
                     .from('companies')
@@ -67,24 +68,28 @@ function LoginFormContent() {
                     .limit(1);
 
                 if (companiesError) {
-                    console.error("Error fetching companies:", companiesError.message);
+                    console.error("LOGIN_ERROR: Could not fetch companies:", companiesError.message);
                     setError("Could not check for companies. Please try again.");
                     return;
                 }
 
+                console.log("LOGIN_INFO: Refreshing router state before redirect.");
                 router.refresh(); // Refresh server components before redirecting
 
                 if (companies && companies.length > 0) {
-                    console.log("Companies found. Redirecting to /dashboard/companies");
+                    const companyId = companies[0].id;
+                    console.log(`LOGIN_REDIRECT: Companies found. Redirecting to /dashboard/companies for company ID: ${companyId}`);
                     router.push('/dashboard/companies');
                 } else {
-                    console.log("No companies found. Redirecting to /workspace-setup");
+                    console.log("LOGIN_REDIRECT: No companies found. Redirecting to /workspace-setup.");
                     router.push('/workspace-setup');
                 }
+            } else {
+                console.warn("LOGIN_WARN: signInWithPassword returned no user and no error.");
             }
 
         } catch (error) {
-            console.error("An unexpected error occurred during login:", error);
+            console.error("LOGIN_FATAL: An unexpected error occurred during the login process:", error);
             setError('An unexpected error occurred.');
         }
     };

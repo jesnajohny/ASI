@@ -1,3 +1,4 @@
+//components/signup-form.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,11 +70,13 @@ export default function SignupForm() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+   const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        console.log("SIGNUP_ATTEMPT: Form submitted for email:", formData.email);
 
         try {
+            console.log("SIGNUP_ATTEMPT: Calling Supabase signUp...");
             const { data, error } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
@@ -84,8 +87,10 @@ export default function SignupForm() {
                 },
             });
 
-               if (error) {
+            if (error) {
+                console.error("SIGNUP_ERROR: Supabase auth error:", error.message);
                 if (error.message.includes("User already registered")) {
+                    console.log("SIGNUP_INFO: User already exists. Redirecting to login page.");
                     const queryParams = new URLSearchParams({
                         email: formData.email,
                         password: formData.password
@@ -98,11 +103,14 @@ export default function SignupForm() {
             }
 
             if (data.user) {
-                // If signup is successful and email confirmation is disabled,
-                // the user is also logged in. Redirect to hire flow.
+                console.log("SIGNUP_SUCCESS: User created and session started. User ID:", data.user.id);
+                console.log("SIGNUP_REDIRECT: Redirecting to /workspace-setup.");
                 router.push('/workspace-setup');
+            } else {
+                 console.warn("SIGNUP_WARN: signUp returned no user and no error. This might mean email confirmation is required.");
             }
         } catch (error) {
+            console.error("SIGNUP_FATAL: An unexpected error occurred.", error);
             setError('An unexpected error occurred.');
         }
     };
