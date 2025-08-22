@@ -39,62 +39,138 @@ function LoginFormContent() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-   const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        console.log("LOGIN_ATTEMPT: Form submitted with email:", formData.email);
+//    const handleSubmit = async (e: React.FormEvent) => {
+//         e.preventDefault();
+//         setError(null);
+//         console.log("LOGIN_ATTEMPT: Form submitted with email:", formData.email);
 
-        try {
-            console.log("LOGIN_ATTEMPT: Calling Supabase signInWithPassword...");
-            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
-                email: formData.email,
-                password: formData.password,
-            });
+//         try {
+//             console.log("LOGIN_ATTEMPT: Calling Supabase signInWithPassword...");
+//             const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+//                 email: formData.email,
+//                 password: formData.password,
+//             });
 
-            if (loginError) {
-                console.error("LOGIN_ERROR: Supabase auth error:", loginError.message);
-                setError(loginError.message);
+//             if (loginError) {
+//                 console.error("LOGIN_ERROR: Supabase auth error:", loginError.message);
+//                 setError(loginError.message);
+//                 return;
+//             }
+            
+//             if (loginData.user) {
+//                 console.log("LOGIN_SUCCESS: User authenticated successfully. User ID:", loginData.user.id);
+//                 console.log("LOGIN_SUCCESS: Session data:", {
+//                     hasSession: !!loginData.session,
+//                     accessToken: loginData.session?.access_token ? 'present' : 'missing',
+//                     refreshToken: loginData.session?.refresh_token ? 'present' : 'missing',
+//                     expiresAt: loginData.session?.expires_at || 'none'
+//                 });
+                
+//                 // Check what cookies are set in the browser
+//                 console.log("LOGIN_SUCCESS: Checking browser cookies...");
+//                 const allCookies = document.cookie.split(';').map(cookie => {
+//                     const [name, ...rest] = cookie.trim().split('=');
+//                     return { name, hasValue: rest.length > 0 };
+//                 });
+//                 console.log("LOGIN_SUCCESS: Browser cookies:", allCookies);
+                
+//                 // Wait a moment for cookies to be set
+//                 await new Promise(resolve => setTimeout(resolve, 200));
+                
+//                 console.log("LOGIN_SUCCESS: Checking for existing companies for this user...");
+                
+//                 const { data: companies, error: companiesError } = await supabase
+//                     .from('companies')
+//                     .select('id')
+//                     .eq('user_id', loginData.user.id)
+//                     .limit(1);
+
+//                 if (companiesError) {
+//                     console.error("LOGIN_ERROR: Could not fetch companies:", companiesError.message);
+//                     setError("Could not check for companies. Please try again.");
+//                     return;
+//                 }
+
+//                 console.log("LOGIN_INFO: Refreshing router state before redirect.");
+//                 router.refresh(); // Refresh server components before redirecting
+
+//                 if (companies && companies.length > 0) {
+//                     const companyId = companies[0].id;
+//                     console.log(`LOGIN_REDIRECT: Companies found. Redirecting to /dashboard/companies for company ID: ${companyId}`);
+//                     router.push('/dashboard/companies');
+//                 } else {
+//                     console.log("LOGIN_REDIRECT: No companies found. Redirecting to /workspace-setup.");
+//                     router.push('/workspace-setup');
+//                 }
+//             } else {
+//                 console.warn("LOGIN_WARN: signInWithPassword returned no user and no error.");
+//             }
+
+//         } catch (error) {
+//             console.error("LOGIN_FATAL: An unexpected error occurred during the login process:", error);
+//             setError('An unexpected error occurred.');
+//         }
+//     };
+
+// In components/login-form.tsx
+
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    console.log("LOGIN_ATTEMPT: Form submitted with email:", formData.email);
+
+    try {
+        console.log("LOGIN_ATTEMPT: Calling Supabase signInWithPassword...");
+        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+            email: formData.email,
+            password: formData.password,
+        });
+
+        if (loginError) {
+            console.error("LOGIN_ERROR: Supabase auth error:", loginError.message);
+            setError(loginError.message);
+            return;
+        }
+        
+        if (loginData.user) {
+            console.log("LOGIN_SUCCESS: User authenticated successfully. User ID:", loginData.user.id);
+            
+            console.log("LOGIN_INFO: Refreshing router state before redirect.");
+            // 1. Refresh the page to ensure the server recognizes the new session cookie.
+            router.refresh(); 
+
+            // 2. Now, check for companies and redirect.
+            const { data: companies, error: companiesError } = await supabase
+                .from('companies')
+                .select('id')
+                .eq('user_id', loginData.user.id)
+                .limit(1);
+
+            if (companiesError) {
+                console.error("LOGIN_ERROR: Could not fetch companies:", companiesError.message);
+                setError("Could not check for companies. Please try again.");
                 return;
             }
-            
-            if (loginData.user) {
-                console.log("LOGIN_SUCCESS: User authenticated successfully. User ID:", loginData.user.id);
-                console.log("LOGIN_SUCCESS: Checking for existing companies for this user...");
-                
-                const { data: companies, error: companiesError } = await supabase
-                    .from('companies')
-                    .select('id')
-                    .eq('user_id', loginData.user.id)
-                    .limit(1);
 
-                if (companiesError) {
-                    console.error("LOGIN_ERROR: Could not fetch companies:", companiesError.message);
-                    setError("Could not check for companies. Please try again.");
-                    return;
-                }
-
-                console.log("LOGIN_INFO: Refreshing router state before redirect.");
-                router.refresh(); // Refresh server components before redirecting
-
-                if (companies && companies.length > 0) {
-                    const companyId = companies[0].id;
-                    console.log(`LOGIN_REDIRECT: Companies found. Redirecting to /dashboard/companies for company ID: ${companyId}`);
-                    router.push('/dashboard/companies');
-                } else {
-                    console.log("LOGIN_REDIRECT: No companies found. Redirecting to /workspace-setup.");
-                    router.push('/workspace-setup');
-                }
+            if (companies && companies.length > 0) {
+                console.log(`LOGIN_REDIRECT: Companies found. Redirecting to /dashboard/companies`);
+                router.push('/dashboard/companies');
             } else {
-                console.warn("LOGIN_WARN: signInWithPassword returned no user and no error.");
+                console.log("LOGIN_REDIRECT: No companies found. Redirecting to /workspace-setup.");
+                router.push('/workspace-setup');
             }
-
-        } catch (error) {
-            console.error("LOGIN_FATAL: An unexpected error occurred during the login process:", error);
-            setError('An unexpected error occurred.');
+        } else {
+            console.warn("LOGIN_WARN: signInWithPassword returned no user and no error.");
         }
-    };
 
-    const containerVariants = {
+    } catch (error) {
+        console.error("LOGIN_FATAL: An unexpected error occurred during the login process:", error);
+        setError('An unexpected error occurred.');
+    }
+};
+
+
+const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,

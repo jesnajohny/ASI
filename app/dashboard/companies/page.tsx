@@ -1,21 +1,30 @@
 //app\dashboard\companies\page.tsx
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 // This is a Server Component by default, and it MUST be async
 export default async function CompaniesPage() {
-  const supabase = createServerComponentClient({ cookies });
+  console.log('=== COMPANIES PAGE START ===');
+  
+  // FIXED: Use our custom server client
+  const supabase = await createServerSupabaseClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  
+  console.log('Companies page - Final user check:', user ? { id: user.id, email: user.email } : null);
+  console.log('Companies page - Final user error:', userError?.message || 'none');
 
   if (!user) {
+    console.log('Companies page - No user found, redirecting to login');
     return redirect('/login');
   }
+
+  console.log('Companies page - User authenticated, fetching companies...');
 
   const { data: companies, error } = await supabase
     .from('companies')

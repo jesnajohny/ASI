@@ -1,10 +1,10 @@
 //app\dashboard\[companyId]\[workspaceId]\layout.tsx
 import React from 'react';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import DashboardHeader from '@/components/dashboard-header';
 import { User } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;
@@ -12,7 +12,8 @@ type DashboardLayoutProps = {
 };
 
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
-  const supabase = createServerComponentClient({ cookies });
+  // FIXED: Use our custom server client
+  const supabase = await createServerSupabaseClient();
   
   // We can now assume a user exists because the middleware has checked.
   // We fetch it again here to get the user's details for the header.
