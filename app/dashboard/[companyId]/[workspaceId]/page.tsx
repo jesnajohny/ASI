@@ -1,4 +1,3 @@
-//app\dashboard\[companyId]\[workspaceId]\page.tsx
 // app/dashboard/[companyId]/[workspaceId]/page.tsx
 import React from 'react';
 import Link from 'next/link';
@@ -8,20 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Bot, PlusCircle, Settings, Trash2 } from 'lucide-react';
 
 type DashboardPageProps = {
-  params: { workspaceId: string };
+  params: { companyId: string, workspaceId: string }; // Add companyId here
 };
 
 export default async function DashboardPage({ params }: DashboardPageProps) {
-  // Create a Supabase client for server-side operations
   const supabase = await createServerSupabaseClient();
-
-  // Get the current user
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/login');
   }
 
-  // Fetch all AI employees associated with this workspace
   const { data: employees, error: employeesError } = await supabase
     .from('employees')
     .select('id, name, employee_type')
@@ -32,12 +27,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     return <p className="p-8 text-destructive">Error: Could not fetch AI employees.</p>;
   }
 
-  // Render the page with the fetched data
   return (
     <main className="p-4 sm:px-6 sm:py-0">
       <div className="flex items-center justify-between pb-4 border-b">
         <h1 className="text-2xl font-semibold">AI Employee Dashboard</h1>
-        <Link href="/hire">
+        {/* MODIFIED: Pass companyId and workspaceId in the href */}
+        <Link href={`/hire?companyId=${params.companyId}&workspaceId=${params.workspaceId}`}>
           <Button className="bg-primary-gradient text-primary-foreground">
             <PlusCircle className="mr-2 h-5 w-5" />
             Add AI Employee
@@ -47,7 +42,6 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
 
       <div className="mt-8">
         {employees && employees.length > 0 ? (
-          // Grid to display existing employees
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {employees.map((employee) => (
               <div key={employee.id} className="border rounded-lg bg-card text-card-foreground shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col justify-between">
@@ -79,12 +73,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
             ))}
           </div>
         ) : (
-          // Empty state when no employees are found
           <div className="text-center py-24 border-2 border-dashed rounded-lg">
             <Bot className="mx-auto h-12 w-12 text-muted-foreground" />
             <h2 className="mt-6 text-xl font-semibold">Welcome to your new workspace!</h2>
             <p className="mt-2 text-muted-foreground">Get started by adding your first AI Employee.</p>
-            <Link href="/hire" className="mt-6 inline-block">
+            {/* MODIFIED: Pass companyId and workspaceId in the href */}
+            <Link href={`/hire?companyId=${params.companyId}&workspaceId=${params.workspaceId}`} className="mt-6 inline-block">
               <Button className="bg-primary-gradient text-primary-foreground">
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Hire Your First Employee
